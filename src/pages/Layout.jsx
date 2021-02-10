@@ -22,6 +22,11 @@ function Layout() {
     await web3.loadWallet();
   }
 
+  async function disconnectWallet() {
+    closeWalletMenu();
+    await web3.unloadWallet();
+  }
+
   const [walletMenuAnchorElement, setWalletMenuAnchorElement] = useState(null);
 
   const openWalletMenu = (event) => {
@@ -55,7 +60,7 @@ function Layout() {
                 open={Boolean(walletMenuAnchorElement)}
                 onClose={closeWalletMenu}
               >
-                <MenuItem onClick={web3.unloadWallet}>Disconnect wallet</MenuItem>
+                <MenuItem onClick={disconnectWallet}>Disconnect wallet</MenuItem>
               </Menu>
             </>
           ) : (
