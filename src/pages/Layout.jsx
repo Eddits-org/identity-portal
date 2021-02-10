@@ -1,5 +1,6 @@
-import {AppBar, Button, Toolbar, Typography} from "@material-ui/core";
+import {AppBar, Avatar, Button, Menu, MenuItem, Toolbar, Typography} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
+import {useState} from "react";
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 import {Link, NavLink, Route, Switch} from "react-router-dom";
 
@@ -21,6 +22,16 @@ function Layout() {
     await web3.loadWallet();
   }
 
+  const [walletMenuAnchorElement, setWalletMenuAnchorElement] = useState(null);
+
+  const openWalletMenu = (event) => {
+    setWalletMenuAnchorElement(event.currentTarget);
+  };
+
+  const closeWalletMenu = () => {
+    setWalletMenuAnchorElement(null);
+  };
+
   return (
     <>
       <AppBar position="static">
@@ -32,7 +43,21 @@ function Layout() {
           <Button color="inherit" component={NavLink} to="/identity" activeStyle={{ color: "darkblue", fontWeight: "bold" }}>Identity</Button>
 
           {web3.loaded ? (
-            <Jazzicon diameter={30} seed={jsNumberForAddress(web3.walletAddress)} />
+            <>
+              <Avatar aria-controls="wallet-menu" aria-haspopup="true" onClick={openWalletMenu} alt={web3.walletAddress}>
+                <Jazzicon diameter={30} seed={jsNumberForAddress(web3.walletAddress)} />
+              </Avatar>
+
+              <Menu
+                id="wallet-menu"
+                anchorEl={walletMenuAnchorElement}
+                keepMounted
+                open={Boolean(walletMenuAnchorElement)}
+                onClose={closeWalletMenu}
+              >
+                <MenuItem onClick={web3.unloadWallet}>Disconnect wallet</MenuItem>
+              </Menu>
+            </>
           ) : (
             <Button color="inherit" onClick={connectWallet}>Connect Wallet</Button>
           )}

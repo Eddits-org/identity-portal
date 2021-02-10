@@ -1,4 +1,7 @@
+import WalletConnectProvider from "@walletconnect/web3-provider";
+import { providers } from 'ethers';
 import React from 'react';
+import Web3Modal from "web3modal";
 
 const Web3Context = React.createContext({ loaded: false });
 
@@ -15,28 +18,42 @@ function Web3ContextProvider(props) {
       throw new Error('ETHEREUM_NOT_INSTALLED');
     }
 
-    window.ethereum.autoRefreshOnNetworkChange = false;
-    const accounts = await new Promise((resolve, reject) => {
-      window.ethereum.sendAsync(
-        { method: 'eth_requestAccounts' },
-        (error, response) => {
-          if (error) {
-            console.error(error);
-            reject(new Error('ETHEREUM_INIT_FAILED'));
-          } else {
-            resolve(response.result);
-          }
-        },
-      );
-    });
-    const account = accounts[0];
+    const providerOptions = {
+      cacheProvider: true,
+      walletconnect: {
+        package: WalletConnectProvider,
+        options: {
+          infuraId: process.env.REACT_APP_INFURA_ID,
+        }
+      }
+    };
 
-    window.ethereum.on('accountsChanged', function (accounts) {
-      setWalletAddress(accounts[0]);
-      setLoaded(true);
+    const web3Modal = new Web3Modal({
+      providerOptions,
     });
 
-    setWalletAddress(account);
+    const provider = await web3Modal.connect();
+
+    // Subscribe to accounts change
+    provider.on("accountsChanged", (accounts) => {
+      if (accounts.length > 0) {
+        setWalletAddress(accounts[0]);
+        setLoaded(true);
+      } else {
+        setLoaded(false);
+        setWalletAddress('');
+      }
+    });
+
+    // Subscribe to provider disconnection
+    provider.on("disconnect", (error) => {
+      setLoaded(false);
+      setWalletAddress('');
+    });
+
+    const web3 = new providers.Web3Provider(provider);
+
+    setWalletAddress(await web3.getSigner().getAddress());
     setLoaded(true);
   }
 
