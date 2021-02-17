@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import { Identity } from "@onchain-id/identity-sdk";
+import { Identity, utils } from "@onchain-id/identity-sdk";
 import ONCHAINID from "@onchain-id/solidity";
 import { ethers } from "ethers";
 
@@ -12,6 +12,7 @@ function IdentityContextProvider(props) {
 
   const [identity, setIdentity] = React.useState(null);
   const [identitiesCached, setIdentitiesCached] = React.useState([]);
+  const [loadedWalletHasManagementKey, setLoadedWalletHasManagementKey] = React.useState(false);
 
   useEffect(() => {
     if (window.localStorage) {
@@ -27,6 +28,14 @@ function IdentityContextProvider(props) {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (identity) {
+      keyHasPurpose(web3.walletAddress, 1).then(hasManagementKey => {
+        setLoadedWalletHasManagementKey(hasManagementKey);
+      });
+    }
+  }, [identity, web3.walletAddress]);
 
   async function disconnectIdentity() {
     setIdentity(null);
@@ -133,12 +142,39 @@ function IdentityContextProvider(props) {
     }
   }
 
+  async function getIdentityKeys(purposes = [1, 2, 3]) {
+    const identityInstance = await Identity.at(identity.address, { provider: web3.provider });
+
+    const keys = [].concat.apply([], await Promise.all(purposes.map(purpose => identityInstance.getKeysByPurpose(purpose)))).map(key => ({
+      hash: key.key,
+      purposes: key.purposes,
+    }));
+
+    setIdentity({
+      ...identity,
+      keys,
+    });
+
+    return keys;
+  }
+
+  async function keyHasPurpose(key, purpose) {
+    return identity.instance.keyHasPurpose(
+      utils.encodeAndHash(['address'], [key]),
+      1,
+      { provider: web3.provider },
+      );
+  }
+
   let value = {
     identity,
     identitiesCached,
     deployIdentity,
     disconnectIdentity,
+    keyHasPurpose,
+    loadedWalletHasManagementKey,
     loadIdentity,
+    getIdentityKeys,
     removeIdentityFromCache,
   };
 
