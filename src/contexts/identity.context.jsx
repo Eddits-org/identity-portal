@@ -41,7 +41,7 @@ function IdentityContextProvider(props) {
         instance: identityInstance,
       });
 
-      if (!identitiesCached.find(identityCached => identityCached === identityInstance.address)) {
+      if (!identitiesCached.find(identityCached => identityCached.address === identityInstance.address)) {
         const identitiesCachedNew = [...identitiesCached, { address: identityInstance.address }];
 
         if (window.localStorage) {
@@ -104,7 +104,6 @@ function IdentityContextProvider(props) {
         step: 'DEPLOYED',
       });
     } catch(error) {
-      console.log(error);
       console.error('Could not deploy identity.', error);
 
       onProgress({

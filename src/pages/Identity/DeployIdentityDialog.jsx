@@ -64,7 +64,8 @@ export default function DeployIdentityDialog({
   }
 
   async function acceptDeploy() {
-    return identityContext.loadIdentity(deployAddress);
+    await identityContext.loadIdentity(deployAddress);
+    closeDialog();
   }
 
   return (
