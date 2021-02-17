@@ -1,5 +1,8 @@
 import React from 'react';
-import {Button, Container} from "@material-ui/core";
+import {Button, Container, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText} from "@material-ui/core";
+import DeleteIcon from '@material-ui/icons/Delete';
+import LoadIdentityIcon from '@material-ui/icons/GetApp';
+
 import {useIdentity} from "../../contexts/identity.context";
 import ConnectIdentityDialog from "./ConnectIdentityDialog";
 
@@ -19,6 +22,8 @@ function Identity() {
                 <h2>Identity information</h2>
 
                 <p>{identityContext.identity.address}</p>
+
+                <Button variant="outlined" color="danger" onClick={identityContext.disconnectIdentity}>Disconnect Identity</Button>
               </>
             ) :
             (
@@ -35,6 +40,22 @@ function Identity() {
                 <hr />
 
                 <h2>Identities registered</h2>
+
+                <List aria-label="identities in cache">
+                  {identityContext.identitiesCached.map(identityCached =>
+                    <ListItem key={identityCached.address}>
+                      <ListItemText primary={identityCached.address} />
+                      <ListItemSecondaryAction>
+                        <IconButton edge="end" aria-label="load identity" onClick={() => identityContext.loadIdentity(identityCached.address)}>
+                          <LoadIdentityIcon />
+                        </IconButton>
+                        <IconButton edge="end" aria-label="remove identity from cache" onClick={() => identityContext.removeIdentityFromCache(identityCached.address)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  )}
+                </List>
               </>
             )
         }

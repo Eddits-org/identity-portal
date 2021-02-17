@@ -7,6 +7,7 @@ const Web3Context = React.createContext({ loaded: false });
 
 function Web3ContextProvider(props) {
   const [loaded, setLoaded] = React.useState(false);
+  const [provider, setProvider] = React.useState(null);
   const [walletAddress, setWalletAddress] = React.useState('');
 
   async function loadWallet() {
@@ -32,10 +33,10 @@ function Web3ContextProvider(props) {
       providerOptions,
     });
 
-    const provider = await web3Modal.connect();
+    const selectedProvider = await web3Modal.connect();
 
     // Subscribe to accounts change
-    provider.on("accountsChanged", (accounts) => {
+    selectedProvider.on("accountsChanged", (accounts) => {
       if (accounts.length > 0) {
         setWalletAddress(accounts[0]);
         setLoaded(true);
@@ -46,14 +47,15 @@ function Web3ContextProvider(props) {
     });
 
     // Subscribe to provider disconnection
-    provider.on("disconnect", (error) => {
+    selectedProvider.on("disconnect", (error) => {
       setLoaded(false);
       setWalletAddress('');
     });
 
-    const web3 = new providers.Web3Provider(provider);
+    const web3provider = new providers.Web3Provider(selectedProvider);
 
-    setWalletAddress(await web3.getSigner().getAddress());
+    setProvider(web3provider);
+    setWalletAddress(await web3provider.getSigner().getAddress());
     setLoaded(true);
   }
 
@@ -71,6 +73,7 @@ function Web3ContextProvider(props) {
   let value = {
     loaded,
     loadWallet,
+    provider,
     unloadWallet,
     walletAddress,
   };
