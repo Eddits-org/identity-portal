@@ -35,6 +35,9 @@ function Web3ContextProvider(props) {
 
     const selectedProvider = await web3Modal.connect();
 
+    // Subscribe to provider connection
+    selectedProvider.on("connect", async (info) => {});
+
     // Subscribe to accounts change
     selectedProvider.on("accountsChanged", (accounts) => {
       if (accounts.length > 0) {

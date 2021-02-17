@@ -1,5 +1,7 @@
 import React, {useEffect} from 'react';
-import { Identity, utils } from "@onchain-id/identity-sdk";
+import { Identity } from "@onchain-id/identity-sdk";
+import ONCHAINID from "@onchain-id/solidity";
+import { ethers } from "ethers";
 
 import {useWeb3} from "./web3.context";
 
@@ -43,10 +45,10 @@ function IdentityContextProvider(props) {
         const identitiesCachedNew = [...identitiesCached, { address: identityInstance.address }];
 
         if (window.localStorage) {
-          window.localStorage.setItem('identities', JSON.stringify(identitiesCached));
+          window.localStorage.setItem('identities', JSON.stringify(identitiesCachedNew));
         }
 
-        setIdentitiesCached(identitiesCached);
+        setIdentitiesCached(identitiesCachedNew);
       }
 
       return {
@@ -73,6 +75,47 @@ function IdentityContextProvider(props) {
     }
   }
 
+  async function deployIdentity(onProgress) {
+    try {
+      const signer = web3.provider.getSigner();
+      const identityFactory = new ethers.ContractFactory(
+        ONCHAINID.contracts.Identity.abi,
+        ONCHAINID.contracts.Identity.bytecode,
+        signer,
+      );
+
+      onProgress({
+        step: 'SIGNATURE',
+      });
+
+      const identityContract = await identityFactory.deploy(
+        await signer.getAddress(),
+        false,
+      );
+
+      onProgress({
+        step: 'DEPLOY',
+        address: identityContract.address,
+      });
+
+      await identityContract.deployed();
+
+      onProgress({
+        step: 'DEPLOYED',
+      });
+    } catch(error) {
+      console.log(error);
+      console.error('Could not deploy identity.', error);
+
+      onProgress({
+        error: {
+          code: 'UNKNOWN_ERROR',
+          originalError: error,
+        },
+      });
+    }
+  }
+
   async function removeIdentityFromCache(address) {
     const index = identitiesCached.findIndex(identityCached => identityCached.address === address);
 
@@ -94,6 +137,7 @@ function IdentityContextProvider(props) {
   let value = {
     identity,
     identitiesCached,
+    deployIdentity,
     disconnectIdentity,
     loadIdentity,
     removeIdentityFromCache,

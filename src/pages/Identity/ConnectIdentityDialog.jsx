@@ -20,13 +20,12 @@ export default function ConnectIdentityDialog({
   const [error, setError] = React.useState(null);
 
   async function attemptToConnect() {
+    setError(null);
     const result = await identityContext.loadIdentity(address);
 
     if (!result.error) {
       return closeDialog();
     }
-
-    console.log(result.error.code);
 
     setError(result.error.code)
   }

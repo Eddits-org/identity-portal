@@ -1,4 +1,4 @@
-import {AppBar, Avatar, Button, Menu, MenuItem, Toolbar, Typography} from "@material-ui/core";
+import {AppBar, Avatar, Button, Container, Menu, MenuItem, Toolbar, Typography} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {useState} from "react";
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
@@ -78,9 +78,19 @@ function Layout() {
         <Route path="/about">
           <About />
         </Route>
-        <Route path="/identity">
-          <Identity />
-        </Route>
+        {web3.loaded ? (
+            <>
+              <Route path="/identity">
+                <Identity />
+              </Route>
+            </>
+          ) :
+          <Container>
+            <p>
+              Please connect an Ethereum wallet to manage identities.
+            </p>
+          </Container>
+        }
         <Route>
           <h1>OUPS!</h1>
           <p>That's a four-oh-four. <Link to="/">Get back to safety!</Link></p>

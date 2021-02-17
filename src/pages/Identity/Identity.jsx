@@ -5,11 +5,13 @@ import LoadIdentityIcon from '@material-ui/icons/GetApp';
 
 import {useIdentity} from "../../contexts/identity.context";
 import ConnectIdentityDialog from "./ConnectIdentityDialog";
+import DeployIdentityDialog from "./DeployIdentityDialog";
 
 function Identity() {
   const identityContext = useIdentity();
 
   const [connectIdentityDialogOpen, setConnectIdentityDialogOpen] = React.useState(false);
+  const [deployIdentityDialogOpen, setDeployIdentityDialogOpen] = React.useState(false);
 
   return (
     <>
@@ -30,7 +32,8 @@ function Identity() {
               <>
                 <p>Connect an existing Identity or deploy your on-chain identity today!</p>
 
-                <Button variant="contained" color="primary">Deploy a new Identity</Button>
+                <Button variant="contained" color="primary" onClick={() => setDeployIdentityDialogOpen(true)}>Deploy a new Identity</Button>
+                <DeployIdentityDialog open={deployIdentityDialogOpen} openDialog={() => setDeployIdentityDialogOpen(true)} closeDialog={() => setDeployIdentityDialogOpen(false)} />
 
                 or
 
