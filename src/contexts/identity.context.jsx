@@ -12,7 +12,7 @@ function IdentityContextProvider(props) {
 
   const [identity, setIdentity] = React.useState(null);
   const [identitiesCached, setIdentitiesCached] = React.useState([]);
-
+  const [loadedWalletHasManagementKey, setLoadedWalletHasManagementKey] = React.useState(false);
 
   useEffect(() => {
     if (window.localStorage) {
@@ -28,6 +28,14 @@ function IdentityContextProvider(props) {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (identity) {
+      keyHasPurpose(web3.walletAddress, 1).then(hasManagementKey => {
+        setLoadedWalletHasManagementKey(hasManagementKey);
+      });
+    }
+  }, [identity, web3.walletAddress]);
 
   async function disconnectIdentity() {
     setIdentity(null);
@@ -164,6 +172,7 @@ function IdentityContextProvider(props) {
     deployIdentity,
     disconnectIdentity,
     keyHasPurpose,
+    loadedWalletHasManagementKey,
     loadIdentity,
     getIdentityKeys,
     removeIdentityFromCache,

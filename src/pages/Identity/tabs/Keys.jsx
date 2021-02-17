@@ -1,6 +1,7 @@
 import {useIdentity} from "../../../contexts/identity.context";
 import {useEffect} from "react";
-import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
+import {IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
+import RemoveIcon from "@material-ui/icons/Remove";
 
 const keyPurposesLabels = ['MANAGEMENT', 'CLAIM', 'ACTION'];
 
@@ -28,6 +29,7 @@ export default function Keys() {
               <TableRow>
                 <TableCell>Key hash</TableCell>
                 <TableCell align="right">Purposes</TableCell>
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -37,6 +39,11 @@ export default function Keys() {
                     {key.hash}
                   </TableCell>
                   <TableCell align="right">{key.purposes.map(purpose => keyPurposesLabels[purpose - 1])}</TableCell>
+                    <TableCell align="right">
+                      <IconButton aria-label="remove key" title="remove key" disabled={!identityContext.loadedWalletHasManagementKey}>
+                        <RemoveIcon/>
+                      </IconButton>
+                    </TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -18,24 +18,13 @@ import DeployIdentityDialog from "./DeployIdentityDialog";
 import Keys from "./tabs/Keys";
 import Claims from "./tabs/Claims";
 import Information from "./tabs/Information";
-import {useWeb3} from "../../contexts/web3.context";
 
 function Identity() {
   const identityContext = useIdentity();
-  const web3 = useWeb3();
 
   const [identityTab, setIdentityTab] = React.useState(0);
   const [connectIdentityDialogOpen, setConnectIdentityDialogOpen] = React.useState(false);
   const [deployIdentityDialogOpen, setDeployIdentityDialogOpen] = React.useState(false);
-  const [hasManagementKey, setHasManagementKey] = React.useState(false);
-
-  useEffect(() => {
-    verifyManagementKey();
-  }, [identityContext.identity.address, web3.walletAddress]);
-
-  async function verifyManagementKey() {
-    setHasManagementKey(await identityContext.keyHasPurpose(web3.walletAddress, 1));
-  }
 
   return (
     <>
@@ -49,10 +38,10 @@ function Identity() {
 
                 <p>{identityContext.identity.address}</p>
 
-                {hasManagementKey ? (
+                {identityContext.loadedWalletHasManagementKey ? (
                   <p>You are connected with a wallet allowed with a MANAGEMENT key.</p>
                 ) : (
-                  <p>You are connected with a wallet that has no MANAGEMENT key on this identity.</p>
+                  <p>You are connected with a wallet that has no MANAGEMENT key on this identity: operations that update the identity are disabled.</p>
                 )}
 
                 <Button variant="outlined" color="primary" onClick={identityContext.disconnectIdentity}>Disconnect Identity</Button>
