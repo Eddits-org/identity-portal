@@ -1,4 +1,4 @@
-import {AppBar, Avatar, Button, Menu, MenuItem, Toolbar, Typography} from "@material-ui/core";
+import {AppBar, Avatar, Button, Container, Menu, MenuItem, Toolbar, Typography} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {useState} from "react";
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
@@ -7,6 +7,7 @@ import {Link, NavLink, Route, Switch} from "react-router-dom";
 import Home from "./Home";
 import Identity from "./Identity/Identity";
 import {useWeb3} from "../contexts/web3.context";
+import About from "./About";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -46,6 +47,7 @@ function Layout() {
           </Typography>
           <Button color="inherit" component={NavLink} to="/" exact activeStyle={{ color: "darkblue", fontWeight: "bold" }}>Home</Button>
           <Button color="inherit" component={NavLink} to="/identity" activeStyle={{ color: "darkblue", fontWeight: "bold" }}>Identity</Button>
+          <Button color="inherit" component={NavLink} to="/about" activeStyle={{ color: "darkblue", fontWeight: "bold" }}>About</Button>
 
           {web3.loaded ? (
             <>
@@ -73,9 +75,22 @@ function Layout() {
         <Route path="/" exact>
           <Home />
         </Route>
-        <Route path="/identity">
-          <Identity />
+        <Route path="/about">
+          <About />
         </Route>
+        {web3.loaded ? (
+            <>
+              <Route path="/identity">
+                <Identity />
+              </Route>
+            </>
+          ) :
+          <Container>
+            <p>
+              Please connect an Ethereum wallet to manage identities.
+            </p>
+          </Container>
+        }
         <Route>
           <h1>OUPS!</h1>
           <p>That's a four-oh-four. <Link to="/">Get back to safety!</Link></p>
