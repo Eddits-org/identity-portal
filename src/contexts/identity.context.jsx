@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import { Identity } from "@onchain-id/identity-sdk";
+import { Identity, utils } from "@onchain-id/identity-sdk";
 import ONCHAINID from "@onchain-id/solidity";
 import { ethers } from "ethers";
 
@@ -12,6 +12,7 @@ function IdentityContextProvider(props) {
 
   const [identity, setIdentity] = React.useState(null);
   const [identitiesCached, setIdentitiesCached] = React.useState([]);
+
 
   useEffect(() => {
     if (window.localStorage) {
@@ -133,12 +134,38 @@ function IdentityContextProvider(props) {
     }
   }
 
+  async function getIdentityKeys(purposes = [1, 2, 3]) {
+    const identityInstance = await Identity.at(identity.address, { provider: web3.provider });
+
+    const keys = [].concat.apply([], await Promise.all(purposes.map(purpose => identityInstance.getKeysByPurpose(purpose)))).map(key => ({
+      hash: key.key,
+      purposes: key.purposes,
+    }));
+
+    setIdentity({
+      ...identity,
+      keys,
+    });
+
+    return keys;
+  }
+
+  async function keyHasPurpose(key, purpose) {
+    return identity.instance.keyHasPurpose(
+      utils.encodeAndHash(['address'], [key]),
+      1,
+      { provider: web3.provider },
+      );
+  }
+
   let value = {
     identity,
     identitiesCached,
     deployIdentity,
     disconnectIdentity,
+    keyHasPurpose,
     loadIdentity,
+    getIdentityKeys,
     removeIdentityFromCache,
   };
 
